@@ -12,8 +12,10 @@ namespace embedded::fmt {
 
 struct Format_string {
   enum struct Base { dec, bin, oct, hex };
-  bool sign_space{};
-  Base base{};
+  bool sign_space{false};
+  bool show_base{false};
+  bool base_as_uc{false};
+  Base base{Base::dec};
 };
 
 // simple character-by-character output
@@ -39,11 +41,21 @@ inline void print_arg(std::string_view p,
 
 template <typename T>
 constexpr const char *signed_arg(T p, Format_string const &fmt_str) {
-  if constexpr (std::numeric_limits<T>::is_signed) {
-    return fmt_str.sign_space && (p > 0) ? " %d" : "%d";
+  switch (fmt_str.base) {
+  case Format_string::Base::hex:
+    return fmt_str.show_base ? (fmt_str.base_as_uc ? "%#X" : "%#x")
+                             : (fmt_str.base_as_uc ? "%X" : "%x");
+  case Format_string::Base::oct:
+    return fmt_str.show_base ? "%#o" : "%o";
+  case Format_string::Base::bin:
+    // return fmt_str.show_base ? (fmt_str.base_as_uc?"%#X":"%#x") :
+    // (fmt_str.base_as_uc?"%X":"%x");
+  case Format_string::Base::dec:
+    if constexpr (std::numeric_limits<T>::is_signed)
+      return fmt_str.sign_space && (p > 0) ? " %d" : "%d";
+    if constexpr (!std::numeric_limits<T>::is_signed)
+      return fmt_str.sign_space ? " %u" : "%u";
   }
-  if constexpr (!std::numeric_limits<T>::is_signed)
-    return fmt_str.sign_space ? " %u" : "%u";
   return "";
 }
 
@@ -51,7 +63,10 @@ template <typename T> void print_arg(T p, Format_string const &fmt_str) {
   static constexpr std::size_t buff_size{16};
   std::array<char, buff_size> buff{};
   if constexpr (std::is_integral_v<T>) {
-    auto count = snprintf(buff.data(), buff.size(), signed_arg(p, fmt_str), p);
+    auto arg_fmt = signed_arg(p, fmt_str);
+    // auto count = snprintf(buff.data(), buff.size(), signed_arg(p, fmt_str),
+    // p);
+    auto count = snprintf(buff.data(), buff.size(), arg_fmt, p);
     vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
   }
   if constexpr (std::is_floating_point_v<T>) {
@@ -82,6 +97,28 @@ constexpr Format_string parse_format_string(std::string_view fmt_str) {
   Format_string str{};
   if (fmt_str == ": "sv)
     str.sign_space = true;
+  auto c_ptr = &fmt_str[1];
+  if (*c_ptr == '#') {
+    str.show_base = true;
+    ++c_ptr;
+  }
+  switch (*c_ptr) {
+  case 'B':
+    str.base_as_uc = true;
+    [[fallthrough]];
+  case 'b':
+    str.base = Format_string::Base::bin;
+    break;
+  case 'X':
+    str.base_as_uc = true;
+    [[fallthrough]];
+  case 'x':
+    str.base = Format_string::Base::hex;
+    break;
+  case 'o':
+    str.base = Format_string::Base::oct;
+    break;
+  }
   return str;
 }
 

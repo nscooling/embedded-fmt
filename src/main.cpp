@@ -18,54 +18,73 @@ using namespace embedded;
 void simple_tests();
 void edge_tests();
 
-void formatting() {
-  puts(">>> Format Arguments");
+void basic_formatting();
+
+void basic_oct() {
+  puts("///////////////////////////////////////////////////////////");
+  int i{10};
+  fmt::print("Oct: {:o}\n", i);
+  std::cout << test_string;
+  assert(test_string == "Oct: 12\n");
+  test_string.clear();
+  fmt::print("Oct: {:#o}\n", i);
+  std::cout << test_string;
+  assert(test_string == "Oct: 012\n");
+  test_string.clear();
+}
+void basic_hex() {
+  puts("///////////////////////////////////////////////////////////");
+  int i{10};
+  fmt::print("Hex: {:x}\n", i);
+  std::cout << test_string;
+  assert(test_string == "Hex: a\n");
+  test_string.clear();
+  fmt::print("Hex: {:#x}\n", i);
+  std::cout << test_string;
+  assert(test_string == "Hex: 0xa\n");
+  test_string.clear();
+  fmt::print("Hex: {:X}\n", i);
+  std::cout << test_string;
+  assert(test_string == "Hex: A\n");
+  test_string.clear();
+  fmt::print("Hex: {:#X}\n", i);
+  std::cout << test_string;
+  assert(test_string == "Hex: 0XA\n");
   test_string.clear();
 
-  // case 3
-  fmt::print("int: {}\n", 42);
+  i = -1;
+  fmt::print("Hex: {:x}\n", i);
   std::cout << test_string;
-  assert(test_string == "int: 42\n");
+  assert(test_string == "Hex: ffffffff\n");
   test_string.clear();
-  // case 3
-  fmt::print("int: {: }\n", 42);
+  fmt::print("Hex: {:#x}\n", i);
   std::cout << test_string;
-  assert(test_string == "int:  42\n");
+  assert(test_string == "Hex: 0xffffffff\n");
   test_string.clear();
-  // case 3
-  fmt::print("int: {: }\n", 42U);
+  fmt::print("Hex: {:X}\n", i);
   std::cout << test_string;
-  assert(test_string == "int:  42\n");
+  assert(test_string == "Hex: FFFFFFFF\n");
   test_string.clear();
-  // case 3
-  fmt::print("int: { }\n", -42);
+  fmt::print("Hex: {:#X}\n", i);
   std::cout << test_string;
-  assert(test_string == "int: -42\n");
-  test_string.clear();
-  // case 3
-  fmt::print("int: {: }\n", -42);
-  std::cout << test_string;
-  assert(test_string == "int: -42\n");
+  assert(test_string == "Hex: 0XFFFFFFFF\n");
   test_string.clear();
 }
 
 int main() {
   simple_tests();
   edge_tests();
-  formatting();
-  ///////////////////////////////////////////////////////////
-  puts("");
+  basic_formatting();
+  basic_hex();
+  basic_oct();
+  puts("///////////////////////////////////////////////////////////");
+
+  //
 }
 
 /*
 print("Decimal:\t{} {} {:06} {} {:0} {:+} {:d}\n", 1, 2, 3, 0, 0, 4, -1);
 Decimal:        1 2 000003 0 0 +4 -1
-
-print("Hexadecimal:\t{:x} {:x} {:X} {:#x}\n", 5, 10, 10, 6);
-Hexadecimal:    5 a A 0x6
-
-print("Octal:\t\t{:o} {:#o} {:#o}\n", 10, 10, 4);
-Octal:          12 012 04
 
 print("Binary:\t\t{:b} {:#b} {:#b}\n", 10, 10, 4);
 Binary:         1010 0b1010 0b100
@@ -147,5 +166,34 @@ void edge_tests() {
   fmt::print("");
   std::cout << test_string;
   assert(test_string == "");
+  test_string.clear();
+}
+
+void basic_formatting() {
+  puts(">>> Basic Format Arguments");
+  // case 3
+  fmt::print("int: {}\n", 42);
+  std::cout << test_string;
+  assert(test_string == "int: 42\n");
+  test_string.clear();
+  // case 3
+  fmt::print("int: {: }\n", 42);
+  std::cout << test_string;
+  assert(test_string == "int:  42\n");
+  test_string.clear();
+  // case 3
+  fmt::print("int: {: }\n", 42U);
+  std::cout << test_string;
+  assert(test_string == "int:  42\n");
+  test_string.clear();
+  // case 3
+  fmt::print("int: { }\n", -42);
+  std::cout << test_string;
+  assert(test_string == "int: -42\n");
+  test_string.clear();
+  // case 3
+  fmt::print("int: {: }\n", -42);
+  std::cout << test_string;
+  assert(test_string == "int: -42\n");
   test_string.clear();
 }
