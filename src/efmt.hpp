@@ -10,6 +10,12 @@
 
 namespace embedded::fmt {
 
+struct Format_string {
+  enum struct Base { dec, bin, oct, hex };
+  bool sign_space{};
+  Base base{};
+};
+
 // simple character-by-character output
 // as string_view may not be NUL terminated
 inline void vprint(std::string_view fmt) {
@@ -18,17 +24,31 @@ inline void vprint(std::string_view fmt) {
   }
 }
 
+// No plans to do any string formatting
 // overload to match NTBS decay
-inline void print_arg(const char *p) { vprint(p); }
+inline void print_arg(const char *p, Format_string const &fmt_str) {
+  vprint(p);
+}
 
 // overload to match string or string_view
-inline void print_arg(std::string_view p) { vprint(p); }
+inline void print_arg(std::string_view p, Format_string const &fmt_str) {
+  vprint(p);
+}
 
-template <typename T> void print_arg(T p) {
+template <typename T>
+constexpr const char *signed_arg(T p, Format_string const &fmt_str) {
+  if constexpr (std::numeric_limits<T>::is_signed) {
+    return fmt_str.sign_space && (p > 0) ? " %d" : "%d";
+  }
+  if constexpr (!std::numeric_limits<T>::is_signed)
+    return fmt_str.sign_space ? " %u" : "%u";
+}
+
+template <typename T> void print_arg(T p, Format_string const &fmt_str) {
   static constexpr std::size_t buff_size{16};
   std::array<char, buff_size> buff{};
   if constexpr (std::is_integral_v<T>) {
-    auto count = snprintf(buff.data(), buff.size(), std::numeric_limits<T>::is_signed?"%d":"%u", p);
+    auto count = snprintf(buff.data(), buff.size(), signed_arg(p, fmt_str), p);
     vprint(std::string_view(buff.data(), count));
   }
   if constexpr (std::is_floating_point_v<T>) {
@@ -52,9 +72,21 @@ template <typename T> void print_arg(T p) {
 
 template <typename... T> inline void print(std::string_view fmt, T &&...args);
 
+constexpr Format_string parse_format_string(std::string_view fmt_str) {
+  if (fmt_str[0] != ':')
+    return {};
+  using namespace std::literals;
+  Format_string str{};
+  if (fmt_str == ": "sv)
+    str.sign_space = true;
+  return str;
+}
+
 template <typename T1, typename... T2>
-inline void vprint(std::string_view fmt, T1 &&p, T2 &&...args) {
-  print_arg(p);
+inline void vprint(std::string_view fmt, std::string_view fmt_str, T1 &&p,
+                   T2 &&...args) {
+  auto fmt_string = parse_format_string(fmt_str);
+  print_arg(p, fmt_string);
   print(fmt, args...);
 }
 
@@ -69,7 +101,8 @@ template <typename... T> inline void print(std::string_view fmt, T &&...args) {
     } else {
       vprint(fmt.substr(0, pos));
       if (auto epos = fmt.find('}'); pos != std::string_view::npos) {
-        vprint(fmt.substr(epos + 1), args...);
+        vprint(fmt.substr(epos + 1), fmt.substr(pos + 1, epos - pos - 1),
+               args...);
       }
     }
   }
