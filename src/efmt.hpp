@@ -64,12 +64,12 @@ template <typename T> inline void print_arg(T p, Format_string const &fmt_str) {
   static constexpr std::size_t buff_size{16};
   std::array<char, buff_size> buff{};
   if constexpr (std::is_integral_v<T>) {
-    auto arg_fmt = signed_arg(p, fmt_str);
-    auto count = snprintf(buff.data(), buff.size(), arg_fmt, p);
+    auto const arg_fmt = signed_arg(p, fmt_str);
+    auto const count = snprintf(buff.data(), buff.size(), arg_fmt, p);
     vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
   }
   if constexpr (std::is_floating_point_v<T>) {
-    auto count = snprintf(buff.data(), buff.size(), "%f", p);
+    auto const count = snprintf(buff.data(), buff.size(), "%f", p);
     vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
   }
 }
@@ -92,12 +92,7 @@ template <typename... T> inline void print(std::string_view fmt, T &&...args);
 constexpr Format_string parse_format_string(std::string_view fmt_str) {
   if (fmt_str[0] != ':')
     return {};
-  using namespace std::literals;
   Format_string str{};
-  if (fmt_str == ": "sv){
-    str.sign_space = true;
-    return str;
-  }
   auto c_ptr = &fmt_str[1];
   if (*c_ptr == '#') {
     str.show_base = true;
@@ -118,6 +113,9 @@ constexpr Format_string parse_format_string(std::string_view fmt_str) {
     break;
   case 'o':
     str.base = Format_string::Base::oct;
+    break;
+  case ' ':
+    str.sign_space = true;
     break;
   }
   return str;
