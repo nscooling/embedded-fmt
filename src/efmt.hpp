@@ -41,7 +41,7 @@ inline void print_arg(std::string_view p,
 }
 
 template <typename T>
-constexpr const char *signed_arg(T p, Format_string const &fmt_str) {
+constexpr const char *signed_arg([[maybe_unused]] T p, Format_string const &fmt_str) {
   switch (fmt_str.base) {
   case Format_string::Base::hex:
     return fmt_str.show_base ? (fmt_str.base_as_uc ? "%#X" : "%#x")
@@ -65,8 +65,6 @@ template <typename T> inline void print_arg(T p, Format_string const &fmt_str) {
   std::array<char, buff_size> buff{};
   if constexpr (std::is_integral_v<T>) {
     auto arg_fmt = signed_arg(p, fmt_str);
-    // auto count = snprintf(buff.data(), buff.size(), signed_arg(p, fmt_str),
-    // p);
     auto count = snprintf(buff.data(), buff.size(), arg_fmt, p);
     vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
   }
