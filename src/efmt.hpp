@@ -26,12 +26,14 @@ inline void vprint(std::string_view fmt) {
 
 // No plans to do any string formatting
 // overload to match NTBS decay
-inline void print_arg(const char *p, Format_string const &fmt_str) {
+inline void print_arg(const char *p,
+                      [[maybe_unused]] Format_string const &fmt_str) {
   vprint(p);
 }
 
 // overload to match string or string_view
-inline void print_arg(std::string_view p, Format_string const &fmt_str) {
+inline void print_arg(std::string_view p,
+                      [[maybe_unused]] Format_string const &fmt_str) {
   vprint(p);
 }
 
@@ -42,6 +44,7 @@ constexpr const char *signed_arg(T p, Format_string const &fmt_str) {
   }
   if constexpr (!std::numeric_limits<T>::is_signed)
     return fmt_str.sign_space ? " %u" : "%u";
+  return "";
 }
 
 template <typename T> void print_arg(T p, Format_string const &fmt_str) {
@@ -49,11 +52,11 @@ template <typename T> void print_arg(T p, Format_string const &fmt_str) {
   std::array<char, buff_size> buff{};
   if constexpr (std::is_integral_v<T>) {
     auto count = snprintf(buff.data(), buff.size(), signed_arg(p, fmt_str), p);
-    vprint(std::string_view(buff.data(), count));
+    vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
   }
   if constexpr (std::is_floating_point_v<T>) {
     auto count = snprintf(buff.data(), buff.size(), "%f", p);
-    vprint(std::string_view(buff.data(), count));
+    vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
   }
 }
 

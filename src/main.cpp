@@ -4,7 +4,7 @@
 
 std::string test_string{};
 auto Putstr = [&str = test_string](auto c) { str += c; };
-auto print_test_string = [](auto &str) {
+[[maybe_unused]] auto print_test_string = [](auto &str) {
   for (auto c : str) {
     putchar('.'), putchar(c);
   }
