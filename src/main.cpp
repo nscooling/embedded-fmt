@@ -20,18 +20,8 @@ void edge_tests();
 
 void basic_formatting();
 
-void basic_oct() {
-  puts("///////////////////////////////////////////////////////////");
-  int i{10};
-  fmt::print("Oct: {:o}\n", i);
-  std::cout << test_string;
-  assert(test_string == "Oct: 12\n");
-  test_string.clear();
-  fmt::print("Oct: {:#o}\n", i);
-  std::cout << test_string;
-  assert(test_string == "Oct: 012\n");
-  test_string.clear();
-}
+void basic_oct();
+
 void basic_hex() {
   puts("///////////////////////////////////////////////////////////");
   int i{10};
@@ -197,3 +187,17 @@ void basic_formatting() {
   assert(test_string == "int: -42\n");
   test_string.clear();
 }
+
+void basic_oct() {
+  puts("///////////////////////////////////////////////////////////");
+  int i{10};
+  fmt::print("Oct: {:o}\n", i);
+  std::cout << test_string;
+  assert(test_string == "Oct: 12\n");
+  test_string.clear();
+  fmt::print("Oct: {:#o}\n", i);
+  std::cout << test_string;
+  assert(test_string == "Oct: 012\n");
+  test_string.clear();
+}
+

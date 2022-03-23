@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <string_view>
+#include <limits>
 
 // macro to allow redirection of output
 #ifndef Putchar
@@ -59,7 +60,7 @@ constexpr const char *signed_arg(T p, Format_string const &fmt_str) {
   return "";
 }
 
-template <typename T> void print_arg(T p, Format_string const &fmt_str) {
+template <typename T> inline void print_arg(T p, Format_string const &fmt_str) {
   static constexpr std::size_t buff_size{16};
   std::array<char, buff_size> buff{};
   if constexpr (std::is_integral_v<T>) {
@@ -95,8 +96,10 @@ constexpr Format_string parse_format_string(std::string_view fmt_str) {
     return {};
   using namespace std::literals;
   Format_string str{};
-  if (fmt_str == ": "sv)
+  if (fmt_str == ": "sv){
     str.sign_space = true;
+    return str;
+  }
   auto c_ptr = &fmt_str[1];
   if (*c_ptr == '#') {
     str.show_base = true;
