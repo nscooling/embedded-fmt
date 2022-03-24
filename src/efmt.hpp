@@ -1,8 +1,8 @@
 #include <array>
 #include <cstddef>
 #include <cstdio>
-#include <string_view>
 #include <limits>
+#include <string_view>
 
 // macro to allow redirection of output
 #ifndef Putchar
@@ -10,6 +10,8 @@
 #endif
 
 namespace embedded::fmt {
+
+template <typename... T> inline void print(std::string_view fmt, T &&...args);
 
 struct Format_string {
   enum struct Base { dec, bin, oct, hex };
@@ -40,8 +42,13 @@ inline void print_arg(std::string_view p,
   vprint(p);
 }
 
-template <typename T>
-constexpr const char *signed_arg([[maybe_unused]] T p, Format_string const &fmt_str) {
+//
+// Integral parsing
+//
+
+template <typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
+constexpr const char *parse_fmt_args([[maybe_unused]] T p,
+                                 Format_string const &fmt_str) {
   switch (fmt_str.base) {
   case Format_string::Base::hex:
     return fmt_str.show_base ? (fmt_str.base_as_uc ? "%#X" : "%#x")
@@ -60,18 +67,35 @@ constexpr const char *signed_arg([[maybe_unused]] T p, Format_string const &fmt_
   return "";
 }
 
-template <typename T> inline void print_arg(T p, Format_string const &fmt_str) {
+template <typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
+inline void print_arg(T p, Format_string const &fmt_str) {
   static constexpr std::size_t buff_size{16};
   std::array<char, buff_size> buff{};
-  if constexpr (std::is_integral_v<T>) {
-    auto const arg_fmt = signed_arg(p, fmt_str);
-    auto const count = snprintf(buff.data(), buff.size(), arg_fmt, p);
-    vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
-  }
-  if constexpr (std::is_floating_point_v<T>) {
-    auto const count = snprintf(buff.data(), buff.size(), "%f", p);
-    vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
-  }
+  auto const arg_fmt = parse_fmt_args(p, fmt_str);
+  auto const count = snprintf(buff.data(), buff.size(), arg_fmt, p);
+  vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
+}
+
+//
+// Floating point parsing
+//
+
+template <typename T,
+          std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+constexpr const char *parse_fmt_args([[maybe_unused]] T p,
+                                 [[maybe_unused]] Format_string const &fmt_str) {
+  // TODO
+  return "%f";
+}
+
+template <typename T,
+          std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+inline void print_arg(T p, Format_string const &fmt_str) {
+  static constexpr std::size_t buff_size{16};
+  std::array<char, buff_size> buff{};
+    auto const arg_fmt = parse_fmt_args(p, fmt_str);
+auto const count = snprintf(buff.data(), buff.size(), arg_fmt, p);
+  vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
 }
 
 // #include <charconv>
@@ -86,8 +110,6 @@ template <typename T> inline void print_arg(T p, Format_string const &fmt_str) {
 //         buff.data() ) ) );
 //     }
 // }
-
-template <typename... T> inline void print(std::string_view fmt, T &&...args);
 
 constexpr Format_string parse_format_string(std::string_view fmt_str) {
   if (fmt_str[0] != ':')

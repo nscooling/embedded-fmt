@@ -200,4 +200,3 @@ void basic_oct() {
   assert(test_string == "Oct: 012\n");
   test_string.clear();
 }
-
