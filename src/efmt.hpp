@@ -48,7 +48,7 @@ inline void print_arg(std::string_view p,
 
 template <typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
 constexpr const char *parse_fmt_args([[maybe_unused]] T p,
-                                 Format_string const &fmt_str) {
+                                     Format_string const &fmt_str) {
   switch (fmt_str.base) {
   case Format_string::Base::hex:
     return fmt_str.show_base ? (fmt_str.base_as_uc ? "%#X" : "%#x")
@@ -67,34 +67,27 @@ constexpr const char *parse_fmt_args([[maybe_unused]] T p,
   return "";
 }
 
-template <typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
-inline void print_arg(T p, Format_string const &fmt_str) {
-  static constexpr std::size_t buff_size{16};
-  std::array<char, buff_size> buff{};
-  auto const arg_fmt = parse_fmt_args(p, fmt_str);
-  auto const count = snprintf(buff.data(), buff.size(), arg_fmt, p);
-  vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
-}
-
 //
 // Floating point parsing
 //
 
 template <typename T,
           std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-constexpr const char *parse_fmt_args([[maybe_unused]] T p,
-                                 [[maybe_unused]] Format_string const &fmt_str) {
+constexpr const char *
+parse_fmt_args([[maybe_unused]] T p,
+               [[maybe_unused]] Format_string const &fmt_str) {
   // TODO
   return "%f";
 }
 
-template <typename T,
-          std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-inline void print_arg(T p, Format_string const &fmt_str) {
+//
+// print the argument using formatting
+//
+template <typename T> inline void print_arg(T p, Format_string const &fmt_str) {
   static constexpr std::size_t buff_size{16};
   std::array<char, buff_size> buff{};
-    auto const arg_fmt = parse_fmt_args(p, fmt_str);
-auto const count = snprintf(buff.data(), buff.size(), arg_fmt, p);
+  auto const arg_fmt = parse_fmt_args(p, fmt_str);
+  auto const count = snprintf(buff.data(), buff.size(), arg_fmt, p);
   vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
 }
 
