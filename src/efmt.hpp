@@ -91,6 +91,17 @@ template <typename T> inline void print_arg(T p, Format_string const &fmt_str) {
   vprint(std::string_view(buff.data(), static_cast<std::size_t>(count)));
 }
 
+template <typename T, std::size_t sz>
+inline void print_arg(std::array<T, sz> const &t,
+                      Format_string const &fmt_str) {
+  fmt::print("[ ");
+  for (auto x : t) {
+    print_arg(x, fmt_str);
+    fmt::print(" ");
+  }
+  fmt::print("]");
+}
+
 // #include <charconv>
 // template <typename T>
 // void print_arg(T p) {
@@ -167,4 +178,5 @@ inline void println(std::string_view fmt, T &&...args) {
   Putchar('\n');
 }
 
+void print(char c) { Putchar(c); }
 } // namespace embedded::fmt
