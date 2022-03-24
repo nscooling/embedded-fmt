@@ -146,9 +146,6 @@ inline void vprint(std::string_view fmt, std::string_view fmt_str, T1 &&p,
 
 template <typename... T> inline void print(std::string_view fmt, T &&...args) {
   constexpr auto arg_count = sizeof...(T);
-  if constexpr (arg_count == 0) {
-    vprint(fmt);
-  }
   if constexpr (arg_count != 0) {
     if (auto pos = fmt.find('{'); pos == std::string_view::npos) {
       vprint(fmt);
@@ -159,6 +156,8 @@ template <typename... T> inline void print(std::string_view fmt, T &&...args) {
                args...);
       }
     }
+  } else {
+    vprint(fmt);
   }
 }
 
