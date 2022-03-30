@@ -37,7 +37,7 @@ void simple_tests() {
   // case 4
   fmt::print("float: {}\n", 1.2f);
   std::cout << test_string;
-  assert(test_string == "float: 1.200000\n");
+  assert(test_string == "float: 1.20\n");
   test_string.clear();
   // case 5
   fmt::print("unsigned: {}\n", static_cast<unsigned int>(0xFFFF'FFFFU));

@@ -45,6 +45,13 @@ void edge_tests() {
   std::cout << test_string;
   assert(test_string == "");
   test_string.clear();
+
+  // outliers (6) -  char
+  fmt::print('.');
+  std::cout << test_string;
+  assert(test_string == ".");
+  test_string.clear();
+  puts("");
 }
 } // namespace
 

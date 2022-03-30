@@ -77,13 +77,41 @@ constexpr const char *
 parse_fmt_args([[maybe_unused]] T p,
                [[maybe_unused]] Format_string const &fmt_str) {
   // TODO
-  return "%f";
+  return "%.2f";
+}
+
+//
+// to_binary
+//
+constexpr std::size_t chars_plus_nul = 33UL;
+constexpr std::size_t chars = chars_plus_nul-1;
+using char32 = std::array<char, chars_plus_nul>;
+constexpr char32 to_binary_string(uint32_t x) {
+    char32 str{};
+    for (auto pos = std::rbegin(str)+1; pos != std::rend(str); ++pos) {
+        *pos = "01"[x % 2];
+        x /= 2;
+    }
+    str[chars] = 0;
+    return str;
+}
+
+template <typename T> 
+inline void print_binary(T p, bool show_base){
+    auto v = to_binary_string(p);
+    std::string_view bin_str{v.data()};
+    std::string_view bin_substr{bin_str};
+    bin_substr.remove_prefix(std::min(bin_substr.find_first_not_of("0"), bin_substr.size()));
+    // bin_substr.remove_prefix(std::min(bin_substr.find_first_not_of("0"), (32UL-8UL)));
+    if(show_base) vprint("0b");
+    vprint(bin_substr);
 }
 
 //
 // print the argument using formatting
 //
 template <typename T> inline void print_arg(T p, Format_string const &fmt_str) {
+  if(fmt_str.base == Format_string::Base::bin) return print_binary(p, fmt_str.show_base);
   static constexpr std::size_t buff_size{16};
   std::array<char, buff_size> buff{};
   auto const arg_fmt = parse_fmt_args(p, fmt_str);

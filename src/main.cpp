@@ -1,46 +1,30 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-
-std::string test_string{};
-auto Putstr = [&str = test_string](auto c) { str += c; };
-[[maybe_unused]] auto print_test_string = [](auto &str) {
-  for (auto c : str) {
-    putchar('.'), putchar(c);
-  }
-};
-
-#define Putchar(x) Putstr(x)
-
 #include "efmt.hpp"
 using namespace embedded;
 
 
 int main() {
-  puts("///////////////////////////////////////////////////////////");
-  std::array a{1, 2, 3, 4, 5};
-  fmt::print("array<int>: {}\n", a);
-  std::cout << test_string;
-  assert(test_string == "array<int>: [ 1 2 3 4 5 ]\n");
-  test_string.clear();
-
-  std::array b{1.1f, 2.2f, 3.3f, 4.4f, 5.5f};
-  fmt::print("array<float>: {}\n", b);
-  std::cout << test_string;
-  assert(test_string ==
-         "array<float>: [ 1.100000 2.200000 3.300000 4.400000 5.500000 ]\n");
-  test_string.clear();
-
-  fmt::print('.');
-  std::cout << test_string;
-  assert(test_string == ".");
-  test_string.clear();
   puts("");
-
-  fmt::print("array<hex>: {:#x}\n", a);
-  std::cout << test_string;
-  assert(test_string == "array<hex>: [ 0x1 0x2 0x3 0x4 0x5 ]\n");
-  test_string.clear();
+  // fmt::print_binary(1);puts("");
+  // fmt::print_binary(2);puts("");
+  // fmt::print_binary(3);puts("");
+  // fmt::print_binary(4);puts("");
+  // fmt::print_binary(5);puts("");
+  // fmt::print_binary(6);puts("");
+  // fmt::print_binary(7);puts("");
+  // fmt::print_binary(8);puts("");
+  // fmt::print_binary(9);puts("");
+  // fmt::print_binary(10);puts("");
+  // fmt::print_binary(11);puts("");
+  // fmt::print_binary(12);puts("");
+  // fmt::print_binary(13);puts("");
+  // fmt::print_binary(14);puts("");
+  // fmt::print_binary(15);puts("");
+  fmt::print("{:b}", 10);puts("");
+  fmt::print("{:#b}", 10);puts("");
+  
 }
 
 /*

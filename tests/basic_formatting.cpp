@@ -43,6 +43,11 @@ void basic_formatting() {
   std::cout << test_string;
   assert(test_string == "int: -42\n");
   test_string.clear();
+  // case 6
+  fmt::print("float: {}\n", 1.2);
+  std::cout << test_string;
+  assert(test_string == "float: 1.20\n");
+  test_string.clear();
 }
 } // namespace
 
